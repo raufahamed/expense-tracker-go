@@ -1,4 +1,3 @@
-
 package app
 
 import (
@@ -10,36 +9,6 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-/*
-Things I learned while building these APIs:
-
-1. HTTP handlers receive two important things:
-   - http.ResponseWriter: used to send a response to the client.
-   - *http.Request: contains information about the incoming request.
-
-2. JSON Decoder:
-   - Converts incoming JSON into a Go struct.
-   - Example: json.NewDecoder(r.Body).Decode(&expense)
-
-3. JSON Encoder:
-   - Converts a Go struct into JSON and writes it to the response.
-   - Example: json.NewEncoder(w).Encode(expense)
-
-4. chi.URLParam():
-   - Extracts dynamic parameters from the URL.
-   - Example: /expenses/{id}
-
-5. Slices:
-   - append() adds elements to a slice.
-   - We can replace an element using its index.
-   - We can remove an element using append() and slice expressions.
-
-6. Error handling:
-   - Always check errors using if err != nil.
-   - return stops the current handler from continuing.
-*/
-
-// CreateExpense handles incoming POST requests and stores a new expense.
 func (a *Application) CreateExpense(w http.ResponseWriter, r *http.Request) {
 	var expense models.Expense
 
@@ -55,7 +24,23 @@ func (a *Application) CreateExpense(w http.ResponseWriter, r *http.Request) {
 	// Store the expense in our in-memory slice.
 	// append() returns the updated slice, so we assign it back.
 	a.Logger.Printf("Here is the returned data: %v", expense)
-	a.Expenses = append(a.Expenses, expense)
+	query := `
+	INSERT INTO expense(title,amount,category_id,description)
+	VALUES($1,$2,$3,$4)
+	`
+	_, err = a.Db.Exec(
+		query,
+		expense.Title,
+		expense.Amount,
+		expense.CategoryID,
+		expense.Description,
+	)
+
+	if err != nil {
+		a.Logger.Println("Error creating expense:", err)
+		http.Error(w, "Failed to create expense", http.StatusInternalServerError)
+		return
+	}
 
 	fmt.Fprintln(w, "Expenses created successfully")
 }
