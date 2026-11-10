@@ -25,7 +25,7 @@ func main() {
 		WriteTimeout: 30*time.Second,
 	}
 	app.Logger.Println("our app is started to run at port 8080",)
-
+	defer app.Db.Close()
 	err = server.ListenAndServe()
 
 	if err!=nil{
