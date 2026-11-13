@@ -236,3 +236,75 @@ func (a *Application) UpdateExpense(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "updated  the expense successfully")
 	}
 }
+
+func (app *Application) GetFilteredExpenses(w http.ResponseWriter, r *http.Request) {
+	queryParams := r.URL.Query()
+
+	search := queryParams.Get("search")
+	categoryID := queryParams.Get("category_id")
+	from := queryParams.Get("from")
+	to := queryParams.Get("to")
+	sortBy := queryParams.Get("sort_by")
+
+	query := `
+     SELECT
+   		e.expense_id,
+   		e.title,
+   		e.amount,
+    	e.category_id,
+    	c.category_name,
+    	e.created_at,
+    	e.description
+	FROM expense e
+	INNER JOIN category c
+    ON e.category_id = c.category_id
+	WHERE ($1 = '' OR e.title ILIKE '%' || $1 || '%')
+  		AND (NULLIF($2, '') IS NULL OR e.category_id = NULLIF($2, '')::uuid)
+  		AND ($3 = '' OR e.created_at >= $3::date)
+  		AND ($4 = '' OR e.created_at < $4::date + INTERVAL '1 day')
+	ORDER BY
+    	CASE WHEN $5 = 'highest' THEN e.amount END DESC,
+    	CASE WHEN $5 = 'lowest' THEN e.amount END ASC,
+    	CASE WHEN $5 = 'newest' THEN e.created_at END DESC,
+    	CASE WHEN $5 = 'oldest' THEN e.created_at END ASC,
+    	e.created_at DESC;
+    `
+
+	rows, err := app.Db.Query(query, search, categoryID, from, to, sortBy)
+	if err != nil {
+		app.Logger.Println("Failed to fetch filtered expenses:", err)
+		http.Error(w, "Failed to fetch expenses", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	expenses := []models.Expense{}
+
+	for rows.Next() {
+		var expense models.Expense
+
+		err := rows.Scan(
+			&expense.ID,
+			&expense.Title,
+			&expense.Amount,
+			&expense.CategoryID,
+			&expense.CategoryName,
+			&expense.CreatedAt,
+			&expense.Description,
+		)
+		if err != nil {
+			http.Error(w, "Failed to read expenses", http.StatusInternalServerError)
+			return
+		}
+
+		expenses = append(expenses, expense)
+	}
+
+	if err := rows.Err(); err != nil {
+		http.Error(w, "Failed to read expenses", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(expenses)
+}

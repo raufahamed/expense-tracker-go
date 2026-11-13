@@ -10,6 +10,7 @@ func SetUpRouter(app *app.Application) *chi.Mux {
 	r := chi.NewRouter()
 	r.Get("/health", app.HealthCheck)
 	r.Get("/get-expenses", app.GetExpenses)
+	r.Get("/get-expenses", app.GetFilteredExpenses)
 	r.Post("/expenses", app.CreateExpense)
 	r.Get("/get-expensebyid/{id}", app.GetExpenseByID)
 	r.Delete("/expenses/{id}", app.DeleteExpense)
