@@ -1,5 +1,4 @@
 import "./App.css";
-import { Toast } from "./components/ui/toast/Toast";
 
 function App() {
   <>
@@ -7,9 +6,7 @@ function App() {
       <div>Expense Tracker</div>
     </div>
 
-    <div>
-      <Toast message={"lakdaskdbasgd"} variant="success" />
-    </div>
+    <div></div>
   </>;
 }
 
