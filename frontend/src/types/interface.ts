@@ -1,12 +1,13 @@
-import type { SortBy } from "../enums";
+export interface IExpense {
+  id: string;
+  title: string;
+  amount: number;
+  category_id: string;
+  category_name: string;
+  created_at: string;
+  description: string;
+}
 
 export interface IExpenseStore {
-  selectedExpenseId: string | null;
-  searchQuery: string;
-  selectedCategoryId: string | null;
-  selectedDateRange: {
-    from: Date | null;
-    to: Date | null;
-  };
-  sortBy: SortBy;
+  expenses: IExpense[];
 }
