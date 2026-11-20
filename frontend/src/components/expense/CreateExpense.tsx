@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Modal } from "../ui/modal";
-import type { ICategory } from "../../types/interface";
+import type { ICategory, IExpense } from "../../types/interface";
 import { Dropdown } from "../ui/Dropdown";
+import { Modal } from "../ui/modal";
 
 interface CreateExpenseProps {
   isOpen: boolean;
@@ -13,16 +13,29 @@ interface CreateExpenseProps {
     categoryId: string,
     description: string,
   ) => void;
+  editingExpense: IExpense | null;
+  onEditClick: (
+    expenseId: string,
+    title: string,
+    amount: number,
+    categoryId: string,
+    description?: string,
+  ) => void;
 }
 
 export const CreateExpense: React.FC<CreateExpenseProps> = (
   props: CreateExpenseProps,
 ) => {
-  const { isOpen, onClose, categories, onClick } = props;
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState(0);
-  const [selectCategoryId, setSelectedCategoryId] = useState("");
+  const { isOpen, onClose, categories, onClick, editingExpense, onEditClick } =
+    props;
+  const [title, setTitle] = useState(editingExpense?.title ?? "");
+  const [description, setDescription] = useState(
+    editingExpense?.description ?? "",
+  );
+  const [amount, setAmount] = useState(editingExpense?.amount ?? 0);
+  const [selectCategoryId, setSelectedCategoryId] = useState(
+    editingExpense?.category_id ?? "",
+  );
 
   const categoryOptions = categories.map((category) => ({
     label: category.category_name,
@@ -71,12 +84,23 @@ export const CreateExpense: React.FC<CreateExpenseProps> = (
       footer={
         <button
           onClick={() => {
-            onClick(title, amount, selectCategoryId, description);
+            if (editingExpense) {
+              onEditClick(
+                editingExpense.id,
+                title,
+                amount,
+                selectCategoryId,
+                description,
+              );
+            } else {
+              onClick(title, amount, selectCategoryId, description);
+            }
+
             onClose();
           }}
           className="bg-blue-500 p-2 border border-blue-300 cursor-pointer rounded-md"
         >
-          add expense
+          {editingExpense ? "update expense" : "add expense"}
         </button>
       }
     />

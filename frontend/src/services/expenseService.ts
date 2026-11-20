@@ -62,3 +62,33 @@ export async function createExpenseApi(
     throw err;
   }
 }
+
+export async function editExpense(
+  expenseId: string,
+  title: string,
+  amount: number,
+  categoryId: string,
+  description?: string,
+) {
+  try {
+    const response = await fetch(BASE_URL + `/update-expense/${expenseId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: title,
+        amount: amount,
+        description: description,
+        category_id: categoryId,
+        expense_id: expenseId,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error("cannot update the expense");
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

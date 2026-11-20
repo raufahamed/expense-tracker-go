@@ -4,12 +4,13 @@ import type { IExpense } from "../../types/interface";
 interface ExpenseListProps {
   expense: IExpense;
   onDelete: (id: string) => void;
+  onEdit: () => void;
 }
 
 export const ExpenseList: React.FC<ExpenseListProps> = (
   props: ExpenseListProps,
 ) => {
-  const { expense, onDelete } = props;
+  const { expense, onDelete, onEdit } = props;
 
   const created_at = new Date(expense.created_at).toLocaleString("en-IN", {
     day: "2-digit",
@@ -32,7 +33,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = (
       </div>
       <div className="flex gap-2 mt-2">
         <button
-          className="p-1 border-gray-300 border bg-gray-400 rounded-md"
+          className="cursor-pointer px-1 py-0.5 border-gray-300 border bg-gray-400 rounded-md"
           onClick={() => {
             onDelete(expense.id);
           }}
@@ -40,10 +41,8 @@ export const ExpenseList: React.FC<ExpenseListProps> = (
           delete
         </button>
         <button
-          className="p-1 border-gray-300 border bg-gray-400 rounded-md"
-          onClick={() => {
-            onDelete(expense.id);
-          }}
+          className="cursor-pointer px-1 py-0.5 border-gray-300 border bg-gray-400 rounded-md"
+          onClick={onEdit}
         >
           edit
         </button>

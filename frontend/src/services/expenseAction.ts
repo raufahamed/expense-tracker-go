@@ -3,6 +3,7 @@ import { useExpenseStore } from "../store/expense/expenseStore";
 import {
   createExpenseApi,
   deleteExpenseById,
+  editExpense,
   getExpenses,
 } from "./expenseService";
 
@@ -52,5 +53,22 @@ export const createExpense = async (
   } catch (error) {
     console.error("Error creating expense:", error);
     throw error;
+  }
+};
+
+export const updateExpense = async (
+  expenseId: string,
+  title: string,
+  amount: number,
+  categoryId: string,
+  description?: string,
+) => {
+  try {
+    await editExpense(expenseId, title, amount, categoryId, description);
+
+    await fetchExpenses();
+  } catch (err) {
+    console.error("Error updating expense:", err);
+    throw err;
   }
 };

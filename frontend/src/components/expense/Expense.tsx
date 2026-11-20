@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from "react";
+import { createCategory, fetchCategories } from "../../services/categoryAction";
 import {
   createExpense,
   deleteExpense,
   fetchExpenses,
+  updateExpense,
 } from "../../services/expenseAction";
 import { useExpenseStore } from "../../store/expense/expenseStore";
-import { ExpenseList } from "./ExpenseList";
-import { CreateExpense } from "./CreateExpense";
+import type { IExpense } from "../../types/interface";
 import { CreateCategory } from "../category/CreateCategory";
-import { createCategory, fetchCategories } from "../../services/categoryAction";
+import { CreateExpense } from "./CreateExpense";
+import { ExpenseList } from "./ExpenseList";
 
 export const Expense: React.FC = () => {
   const expenses = useExpenseStore((state) => state.expenses);
   const categories = useExpenseStore((state) => state.categories);
   const [isOpen, setIsOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<IExpense | null>(null);
+
+  console.log(editingExpense, "editingExpense here");
 
   useEffect(() => {
     fetchExpenses();
@@ -42,10 +47,13 @@ export const Expense: React.FC = () => {
         </button>
       </div>
       <CreateExpense
+        key={editingExpense?.id ?? "createExpense"}
         isOpen={isOpen}
         onClose={() => setIsOpen((prev) => !prev)}
         categories={categories}
         onClick={createExpense}
+        editingExpense={editingExpense}
+        onEditClick={updateExpense}
       />
       <CreateCategory
         isOpen={categoryOpen}
@@ -56,7 +64,15 @@ export const Expense: React.FC = () => {
         {expenses.map((expense) => (
           <ExpenseList
             expense={expense}
-            onDelete={() => deleteExpense(expense.id)}
+            onDelete={() => {
+              console.log("am i getting called here in the delete onClick");
+
+              deleteExpense(expense.id);
+            }}
+            onEdit={() => {
+              setEditingExpense(expense);
+              setIsOpen((prev) => !prev);
+            }}
           />
         ))}
       </div>
