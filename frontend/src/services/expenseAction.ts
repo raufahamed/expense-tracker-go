@@ -1,6 +1,10 @@
 import { updateExpenseStore } from "../store/expense/action";
 import { useExpenseStore } from "../store/expense/expenseStore";
-import { getExpenses } from "./expenseService";
+import {
+  createExpenseApi,
+  deleteExpenseById,
+  getExpenses,
+} from "./expenseService";
 
 export async function fetchExpenses() {
   try {
@@ -20,7 +24,7 @@ export async function fetchExpenses() {
 
 export async function deleteExpense(id: string) {
   try {
-    await deleteExpense(id);
+    await deleteExpenseById(id);
 
     const expense = useExpenseStore.getState().expenses;
 
@@ -34,3 +38,19 @@ export async function deleteExpense(id: string) {
     throw error;
   }
 }
+
+export const createExpense = async (
+  title: string,
+  amount: number,
+  categoryId: string,
+  description?: string,
+) => {
+  try {
+    await createExpenseApi(title, amount, categoryId, description);
+
+    await fetchExpenses();
+  } catch (error) {
+    console.error("Error creating expense:", error);
+    throw error;
+  }
+};

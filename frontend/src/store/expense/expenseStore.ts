@@ -13,6 +13,7 @@ export const useExpenseStore = create<IExpenseStore>()(
         name: "expense store",
         partialize: (state) => ({
           expenses: state.expenses,
+          categories: state.categories,
         }),
         merge: (presistedState, currentState) => ({
           ...currentState,

@@ -76,7 +76,7 @@ export const Modal: React.FC<ModalProps> = ({
             className="cursor-pointer"
             onClick={onClose}
           >
-            <CloseIcon />
+            <CloseIcon className="h-4 w-4 text-[#4B5563]" />
           </button>
         </div>
 

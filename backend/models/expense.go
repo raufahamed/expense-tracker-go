@@ -15,6 +15,6 @@ type Expense struct {
 }
 
 type Category struct {
-	ID           string `json:"id"`
+	ID           string `json:"category_id"`
 	CategoryName string `json:"category_name"`
 }

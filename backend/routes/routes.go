@@ -12,7 +12,7 @@ func SetUpRouter(app *app.Application) *chi.Mux {
 
 	r.Use(cors.Handler(
 		cors.Options{
-			AllowedOrigins: []string{"http://localhost:5174"},
+			AllowedOrigins: []string{"http://localhost:5173"},
 			AllowedMethods: []string{
 				"GET",
 				"POST",

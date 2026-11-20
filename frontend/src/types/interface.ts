@@ -8,6 +8,12 @@ export interface IExpense {
   description: string;
 }
 
+export interface ICategory {
+  category_id: string;
+  category_name: string;
+}
+
 export interface IExpenseStore {
   expenses: IExpense[];
+  categories: ICategory[];
 }
