@@ -52,7 +52,7 @@ export const Expense: React.FC = () => {
         onClose={() => setCategoryOpen((prev) => !prev)}
         onClick={createCategory}
       />
-      <div className="flex items-center gap-3">
+      <div className="grid grid-cols-3 items-center gap-3">
         {expenses.map((expense) => (
           <ExpenseList
             expense={expense}

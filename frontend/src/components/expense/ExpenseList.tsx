@@ -21,20 +21,33 @@ export const ExpenseList: React.FC<ExpenseListProps> = (
   });
 
   return (
-    <div className="w-80 border border-gray-500 bg-gray-300 rounded-2xl p-4">
-      title- {expense.title}
-      description- {expense.description}
-      amount - {expense.amount}
-      created_at - {created_at}
-      category-name - {expense.category_name}
-      <button
-        className="p-2 border-gray-300 border bg-gray-400"
-        onClick={() => {
-          onDelete(expense.id);
-        }}
-      >
-        delete the expense
-      </button>
+    <div className="w-80 border border-gray-500 bg-white rounded-2xl p-4">
+      <div className="flex flex-col gap-1">
+        <p className="text-gray-700 text-xl font-bold">{expense.title}</p>
+        <div className="border-gray-500 p-2 rounded-md bg-indigo-100">
+          <p className="text-gray-400">{expense.description}</p>
+          <p className="text-blue-300 text-[12px]">${expense.amount}</p>
+          <p className="text-gray-500 text-[12px]">{created_at}</p>
+        </div>
+      </div>
+      <div className="flex gap-2 mt-2">
+        <button
+          className="p-1 border-gray-300 border bg-gray-400 rounded-md"
+          onClick={() => {
+            onDelete(expense.id);
+          }}
+        >
+          delete
+        </button>
+        <button
+          className="p-1 border-gray-300 border bg-gray-400 rounded-md"
+          onClick={() => {
+            onDelete(expense.id);
+          }}
+        >
+          edit
+        </button>
+      </div>
     </div>
   );
 };
