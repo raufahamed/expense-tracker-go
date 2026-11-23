@@ -3,7 +3,7 @@ import { createCategory, fetchCategories } from "../../services/categoryAction";
 import {
   createExpense,
   deleteExpense,
-  fetchExpenses,
+  sortExpenses,
   updateExpense,
 } from "../../services/expenseAction";
 import { useExpenseStore } from "../../store/expense/expenseStore";
@@ -11,6 +11,8 @@ import type { IExpense } from "../../types/interface";
 import { CreateCategory } from "../category/CreateCategory";
 import { CreateExpense } from "./CreateExpense";
 import { ExpenseList } from "./ExpenseList";
+import { SortBy } from "../../enums";
+import { Dropdown } from "../ui/Dropdown";
 
 export const Expense: React.FC = () => {
   const expenses = useExpenseStore((state) => state.expenses);
@@ -18,13 +20,35 @@ export const Expense: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<IExpense | null>(null);
+  const [sortBy, setSortBy] = useState<SortBy | null>(null);
+  const sort_by = useExpenseStore((state) => state.sortBy);
 
-  console.log(editingExpense, "editingExpense here");
+  const sortingOptions = [
+    {
+      label: "Highest",
+      value: SortBy.highest,
+    },
+    {
+      label: "Lowest",
+      value: SortBy.lowest,
+    },
+    {
+      label: "Newest",
+      value: SortBy.newest,
+    },
+    {
+      label: "Oldest",
+      value: SortBy.oldest,
+    },
+  ];
 
   useEffect(() => {
-    fetchExpenses();
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    sortExpenses(sort_by);
+  }, [sort_by]);
 
   return (
     <div className="p-3 flex flex-col gap-4">
@@ -45,6 +69,14 @@ export const Expense: React.FC = () => {
         >
           Add Category
         </button>
+        <Dropdown
+          triggerLabel={sort_by ?? "Sort By amount & date"}
+          options={sortingOptions}
+          onSelect={(value) => {
+            setSortBy(value as SortBy);
+            sortExpenses(value as SortBy);
+          }}
+        />
       </div>
       <CreateExpense
         key={editingExpense?.id ?? "createExpense"}
@@ -60,13 +92,11 @@ export const Expense: React.FC = () => {
         onClose={() => setCategoryOpen((prev) => !prev)}
         onClick={createCategory}
       />
-      <div className="grid grid-cols-3 items-center gap-3">
+      <div className="grid grid-cols-4 items-center gap-2">
         {expenses.map((expense) => (
           <ExpenseList
             expense={expense}
             onDelete={() => {
-              console.log("am i getting called here in the delete onClick");
-
               deleteExpense(expense.id);
             }}
             onEdit={() => {

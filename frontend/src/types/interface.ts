@@ -1,3 +1,5 @@
+import type { SortBy } from "../enums";
+
 export interface IExpense {
   id: string;
   title: string;
@@ -16,4 +18,5 @@ export interface ICategory {
 export interface IExpenseStore {
   expenses: IExpense[];
   categories: ICategory[];
+  sortBy: SortBy;
 }

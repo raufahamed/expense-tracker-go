@@ -1,4 +1,5 @@
 import { BASE_URL } from "../constant";
+import type { SortBy } from "../enums";
 
 export const getExpenses = async () => {
   try {
@@ -87,6 +88,23 @@ export async function editExpense(
     if (!response.ok) {
       throw new Error("cannot update the expense");
     }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function sortExpenseBy(sortBy: SortBy) {
+  try {
+    const response = await fetch(BASE_URL + `/get-expenses?sort_by=${sortBy}`);
+
+    if (!response.ok) {
+      throw new Error(`not able to sort the expense by ${sortBy}`);
+    }
+
+    const data = await response.json();
+
+    return data;
   } catch (error) {
     console.error(error);
     throw error;

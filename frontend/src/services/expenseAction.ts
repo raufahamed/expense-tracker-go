@@ -1,3 +1,4 @@
+import { SortBy } from "../enums";
 import { updateExpenseStore } from "../store/expense/action";
 import { useExpenseStore } from "../store/expense/expenseStore";
 import {
@@ -5,6 +6,7 @@ import {
   deleteExpenseById,
   editExpense,
   getExpenses,
+  sortExpenseBy,
 } from "./expenseService";
 
 export async function fetchExpenses() {
@@ -14,8 +16,6 @@ export async function fetchExpenses() {
     updateExpenseStore({
       expenses: expenses,
     });
-
-    console.log(useExpenseStore.getState().expenses, "expenses here");
   } catch (err) {
     console.log(err);
 
@@ -46,10 +46,11 @@ export const createExpense = async (
   categoryId: string,
   description?: string,
 ) => {
+  const sortBy = useExpenseStore.getState().sortBy;
   try {
     await createExpenseApi(title, amount, categoryId, description);
 
-    await fetchExpenses();
+    await sortExpenses(sortBy);
   } catch (error) {
     console.error("Error creating expense:", error);
     throw error;
@@ -70,5 +71,19 @@ export const updateExpense = async (
   } catch (err) {
     console.error("Error updating expense:", err);
     throw err;
+  }
+};
+
+export const sortExpenses = async (SortBy: SortBy) => {
+  try {
+    const sortedExpense = await sortExpenseBy(SortBy);
+
+    updateExpenseStore({
+      expenses: sortedExpense,
+      sortBy: SortBy,
+    });
+  } catch (error) {
+    console.error("error sorting the expense", error);
+    throw error;
   }
 };

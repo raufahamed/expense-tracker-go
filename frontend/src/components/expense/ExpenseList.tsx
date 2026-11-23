@@ -22,11 +22,14 @@ export const ExpenseList: React.FC<ExpenseListProps> = (
   });
 
   return (
-    <div className="w-80 border border-gray-500 bg-white rounded-2xl p-4">
-      <div className="flex flex-col gap-1">
+    <div className=" border border-gray-500 flex flex-col flex-1 bg-white rounded-2xl p-4">
+      <div className="flex flex-col flex-1 gap-1">
         <p className="text-gray-700 text-xl font-bold">{expense.title}</p>
         <div className="border-gray-500 p-2 rounded-md bg-indigo-100">
           <p className="text-gray-400">{expense.description}</p>
+          <p className="text-gray-500 uppercase font-bold">
+            {expense.category_name}
+          </p>
           <p className="text-blue-300 text-[12px]">${expense.amount}</p>
           <p className="text-gray-500 text-[12px]">{created_at}</p>
         </div>
