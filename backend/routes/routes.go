@@ -28,16 +28,27 @@ func SetUpRouter(app *app.Application) *chi.Mux {
 			MaxAge: 300,
 		},
 	))
-	r.Get("/health", app.HealthCheck)
-	r.Get("/get-expenses", app.GetExpenses)
-	r.Get("/get-expenses", app.GetFilteredExpenses)
-	r.Post("/expenses", app.CreateExpense)
-	r.Get("/get-expensebyid/{id}", app.GetExpenseByID)
-	r.Delete("/expenses/{id}", app.DeleteExpense)
-	r.Put("/update-expense/{id}", app.UpdateExpense)
 
-	r.Post("/categories", app.CreateCategory)
-	r.Get("/get-categories", app.GetCategories)
+	// public
+	// authentication
+	r.Post("/users/sign-up", app.RegisterUser)
+	r.Post("/users/login", app.LoginUser)
+	r.Get("/health", app.HealthCheck)
+
+	// need authentication
+	r.Group(func(r chi.Router) {
+		r.Use(app.AuthMiddleware)
+
+		r.Get("/get-expenses", app.GetExpenses)
+		r.Get("/get-expenses", app.GetFilteredExpenses)
+		r.Post("/expenses", app.CreateExpense)
+		r.Get("/get-expensebyid/{id}", app.GetExpenseByID)
+		r.Delete("/expenses/{id}", app.DeleteExpense)
+		r.Put("/update-expense/{id}", app.UpdateExpense)
+
+		r.Post("/categories", app.CreateCategory)
+		r.Get("/get-categories", app.GetCategories)
+	})
 
 	return r
 }
