@@ -39,7 +39,8 @@ func SetUpRouter(app *app.Application) *chi.Mux {
 	// need authentication
 	r.Group(func(r chi.Router) {
 		r.Use(app.AuthMiddleware)
-
+		r.Get("/users/me", app.GetCurrentUser)
+		r.Post("/users/logout", app.LogoutUser)
 		r.Get("/get-expenses", app.GetExpenses)
 		r.Get("/get-expenses", app.GetFilteredExpenses)
 		r.Post("/expenses", app.CreateExpense)

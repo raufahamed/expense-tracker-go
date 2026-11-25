@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import { Expense } from "../expense/Expense";
 import { loginUser, signUpUser } from "../../services/auth";
@@ -7,22 +7,19 @@ import { LoginPage } from "../pages/LoginPage";
 
 export const AppRoutes = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Default route */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+    <Routes>
+      {/* Default route */}
+      <Route path="/" element={<Navigate to="/signup" replace />} />
 
-        {/* Authentication routes */}
-        <Route path="/login" element={<LoginPage onLogin={loginUser} />} />
+      {/* Authentication routes */}
+      <Route path="/signup" element={<SignupPage signUp={signUpUser} />} />
+      <Route path="/login" element={<LoginPage onLogin={loginUser} />} />
 
-        <Route path="/signup" element={<SignupPage signUp={signUpUser} />} />
+      {/* Expense tracker */}
+      <Route path="/expenses" element={<Expense />} />
 
-        {/* Expense tracker */}
-        <Route path="/expenses" element={<Expense />} />
-
-        {/* Unknown routes */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </BrowserRouter>
+      {/* Unknown routes */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   );
 };

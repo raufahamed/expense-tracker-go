@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface LoginProps {
   onClick: (email: string, password: string) => void;
@@ -8,6 +9,7 @@ export const Login: React.FC<LoginProps> = (props: LoginProps) => {
   const { onClick } = props;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
   return (
     <div className="flex items-center justify-center w-full min-h-screen">
       <div className="flex flex-col  w-96 items-center justify-center  border border-gray-300">
@@ -38,6 +40,16 @@ export const Login: React.FC<LoginProps> = (props: LoginProps) => {
         >
           done
         </button>
+        <p>
+          Don't have an account?
+          <button
+            className="cursor-pointer ml-0.5 text-blue-400"
+            type="button"
+            onClick={() => navigate("/signup")}
+          >
+            Sign up
+          </button>
+        </p>
       </div>
     </div>
   );

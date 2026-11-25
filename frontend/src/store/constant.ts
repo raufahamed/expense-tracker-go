@@ -1,8 +1,13 @@
 import { SortBy } from "../enums";
-import type { IExpenseStore } from "../types/interface";
+import type { IAuthStore, IExpenseStore } from "../types/interface";
 
 export const defaultExpenseStore: IExpenseStore = {
   expenses: [],
   categories: [],
   sortBy: SortBy.oldest,
+};
+
+export const defaultAuthStore: IAuthStore = {
+  user: null,
+  isAuthenticated: false,
 };

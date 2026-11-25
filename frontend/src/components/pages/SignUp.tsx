@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface SignupProps {
   onClick: (name: string, email: string, password: string) => void;
@@ -6,6 +7,7 @@ interface SignupProps {
 
 export const SignUp: React.FC<SignupProps> = (props: SignupProps) => {
   const { onClick } = props;
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,6 +50,16 @@ export const SignUp: React.FC<SignupProps> = (props: SignupProps) => {
         >
           SIGN UP
         </button>
+        <p>
+          Already have an account?
+          <button
+            className="cursor-pointer text-blue-400 ml-0.5"
+            type="button"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
+        </p>
       </div>
     </div>
   );

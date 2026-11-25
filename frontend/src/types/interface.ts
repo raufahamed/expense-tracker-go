@@ -20,3 +20,14 @@ export interface IExpenseStore {
   categories: ICategory[];
   sortBy: SortBy;
 }
+
+export interface Iuser {
+  name: string;
+  email: string;
+  userId: string;
+}
+
+export interface IAuthStore {
+  user: Iuser | null;
+  isAuthenticated: boolean;
+}

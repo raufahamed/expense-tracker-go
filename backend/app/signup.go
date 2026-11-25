@@ -139,3 +139,59 @@ func (a *Application) LoginUser(w http.ResponseWriter, r *http.Request) {
 	})
 
 }
+
+func (a *Application) GetCurrentUser(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := r.Context().Value(userIDKey).(string)
+
+	if !ok || userID == "" {
+		a.Logger.Println("error getting the user")
+		http.Error(w, "error fetching the user details", http.StatusUnauthorized)
+		return
+	}
+
+	query := `
+
+		SELECT user_id,name,email
+		FROM Users
+		WHERE user_id = $1;
+	`
+	row := a.Db.QueryRow(query, userID)
+
+	var user models.User
+
+	err := row.Scan(
+		&user.UserId,
+		&user.Name,
+		&user.Email,
+	)
+
+	if err != nil {
+		a.Logger.Println("error getting the user details")
+		http.Error(w, "Error getting the user details", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	err = json.NewEncoder(w).Encode(user)
+	if err != nil {
+		a.Logger.Println("error encoding the user details", err)
+		http.Error(w, "error encoding the user details", http.StatusInternalServerError)
+		return
+	}
+
+}
+
+func (a *Application) LogoutUser(w http.ResponseWriter, r *http.Request) {
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   -1,
+	})
+
+	w.WriteHeader(http.StatusNoContent)
+}

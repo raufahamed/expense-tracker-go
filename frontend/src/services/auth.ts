@@ -45,3 +45,39 @@ export async function loginUser(email: string, password: string) {
 
   return response;
 }
+
+export async function getUser() {
+  try {
+    const response = await fetch(BASE_URL + "/users/me", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(message || "canot able to fetch data");
+    }
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error(error, "error while fetching the user data");
+    throw error;
+  }
+}
+
+export async function logoutUser() {
+  const resposne = await fetch(BASE_URL + "/users/logout", {
+    method: "POST",
+    credentials: "include",
+  });
+
+  if (!resposne.ok) {
+    const message = await resposne.text();
+    throw new Error(message || "logout failed");
+  }
+}
