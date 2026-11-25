@@ -10,6 +10,15 @@ import (
 func (a *Application) CreateCategory(w http.ResponseWriter, r *http.Request) {
 	var category models.Category
 
+	userID, ok := r.Context().Value(userIDKey).(string)
+
+	a.Logger.Println("GetExpenses called for user:", userID)
+
+	if !ok || userID == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	// Decode the JSON request body into our Expense struct.
 	err := json.NewDecoder(r.Body).Decode(&category)
 
@@ -21,9 +30,9 @@ func (a *Application) CreateCategory(w http.ResponseWriter, r *http.Request) {
 
 	query := `
 	INSERT INTO category(category_name)
-	VALUES($1)
+	VALUES($1,$2)
 	`
-	_, err = a.Db.Exec(query, category.CategoryName)
+	_, err = a.Db.Exec(query, category.CategoryName, userID)
 
 	if err != nil {
 		a.Logger.Println("Error creating categories:", err)
@@ -37,13 +46,23 @@ func (a *Application) CreateCategory(w http.ResponseWriter, r *http.Request) {
 
 func (a *Application) GetCategories(w http.ResponseWriter, r *http.Request) {
 
+	userID, ok := r.Context().Value(userIDKey).(string)
+
+	a.Logger.Println("GetExpenses called for user:", userID)
+
+	if !ok || userID == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	var categories []models.Category
 
 	query := `
 	SELECT category_id , category_name
 	FROM category
+	WHERE user_id = $1
 	`
-	rows, err := a.Db.Query(query)
+	rows, err := a.Db.Query(query, userID)
 
 	if err != nil {
 		a.Logger.Println("Error fetching categories", err)

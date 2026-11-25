@@ -12,6 +12,15 @@ import (
 func (a *Application) CreateExpense(w http.ResponseWriter, r *http.Request) {
 	var expense models.Expense
 
+	userID, ok := r.Context().Value(userIDKey).(string)
+
+	if userID == "" || !ok {
+
+		a.Logger.Println("unauthorized api call")
+		http.Error(w, "unauthorized cookies has been set", http.StatusUnauthorized)
+		return
+	}
+
 	// Decode the JSON request body into our Expense struct.
 	err := json.NewDecoder(r.Body).Decode(&expense)
 
@@ -25,8 +34,8 @@ func (a *Application) CreateExpense(w http.ResponseWriter, r *http.Request) {
 	// append() returns the updated slice, so we assign it back.
 	a.Logger.Printf("Here is the returned data: %v", expense)
 	query := `
-	INSERT INTO expense(title,amount,category_id,description)
-	VALUES($1,$2,$3,$4)
+	INSERT INTO expense(title,amount,category_id,description,user_id)
+	VALUES($1,$2,$3,$4,$5)
 	`
 	_, err = a.Db.Exec(
 		query,
@@ -34,6 +43,7 @@ func (a *Application) CreateExpense(w http.ResponseWriter, r *http.Request) {
 		expense.Amount,
 		expense.CategoryID,
 		expense.Description,
+		userID,
 	)
 
 	if err != nil {
@@ -48,6 +58,15 @@ func (a *Application) CreateExpense(w http.ResponseWriter, r *http.Request) {
 // GetExpenses returns all expenses stored in our slice.
 func (a *Application) GetExpenses(w http.ResponseWriter, r *http.Request) {
 
+	userID, ok := r.Context().Value(userIDKey).(string)
+
+	a.Logger.Println("GetExpenses called for user:", userID)
+
+	if !ok || userID == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	var expenses []models.Expense
 
 	query := `
@@ -55,9 +74,10 @@ func (a *Application) GetExpenses(w http.ResponseWriter, r *http.Request) {
 		FROM expense 
 		INNER JOIN category 
 		ON expense.category_id = category.category_id
+		WHERE expense.user_id = $1	
 	`
 
-	rows, err := a.Db.Query(query)
+	rows, err := a.Db.Query(query, userID)
 
 	if err != nil {
 		a.Logger.Println("Error fetching expenses", err)
@@ -75,6 +95,7 @@ func (a *Application) GetExpenses(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			a.Logger.Println("Error fetching expenses", err)
+			http.Error(w, "Failed to fetch expenses", http.StatusInternalServerError)
 			return
 		}
 
@@ -99,6 +120,15 @@ func (a *Application) GetExpenses(w http.ResponseWriter, r *http.Request) {
 
 func (a *Application) GetExpenseByID(w http.ResponseWriter, r *http.Request) {
 
+	userID, ok := r.Context().Value(userIDKey).(string)
+
+	a.Logger.Println("GetExpenses called for user:", userID)
+
+	if !ok || userID == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	expenseID := chi.URLParam(r, "id")
 
 	if expenseID == "" {
@@ -112,9 +142,10 @@ func (a *Application) GetExpenseByID(w http.ResponseWriter, r *http.Request) {
 		INNER JOIN category 
 		ON expense.category_id = category.category_id
 		WHERE expense.expense_id = $1
+		AND expense.user_id = $2
 	`
 
-	row := a.Db.QueryRow(query, expenseID)
+	row := a.Db.QueryRow(query, expenseID, userID)
 
 	var expense models.Expense
 
@@ -148,6 +179,16 @@ func (a *Application) GetExpenseByID(w http.ResponseWriter, r *http.Request) {
 
 // DeleteExpense removes an expense using its ID.
 func (a *Application) DeleteExpense(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := r.Context().Value(userIDKey).(string)
+
+	a.Logger.Println("GetExpenses called for user:", userID)
+
+	if !ok || userID == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	expenseID := chi.URLParam(r, "id")
 
 	if expenseID == "" {
@@ -158,9 +199,10 @@ func (a *Application) DeleteExpense(w http.ResponseWriter, r *http.Request) {
 	query := `
 		DELETE FROM expense
 		WHERE expense.expense_id = $1
+		AND expense.user_id = $2
 	`
 
-	result, err := a.Db.Exec(query, expenseID)
+	result, err := a.Db.Exec(query, expenseID, userID)
 
 	if err != nil {
 		a.Logger.Println("Error deleting expense:", err)
@@ -187,6 +229,14 @@ func (a *Application) DeleteExpense(w http.ResponseWriter, r *http.Request) {
 
 // UpdateExpense updates an existing expense using its ID.
 func (a *Application) UpdateExpense(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := r.Context().Value(userIDKey).(string)
+
+	if !ok || userID == "" {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	expenseID := chi.URLParam(r, "id")
 
 	if expenseID == "" {
@@ -210,9 +260,10 @@ func (a *Application) UpdateExpense(w http.ResponseWriter, r *http.Request) {
 			amount = $2,
 			description = $3,
 			category_id = $4
-		WHERE expense_id = $5;	
+		WHERE expense_id = $5
+		AND user_id = $6;
 	`
-	result, err := a.Db.Exec(query, expense.Title, expense.Amount, expense.Description, expense.CategoryID, expenseID)
+	result, err := a.Db.Exec(query, expense.Title, expense.Amount, expense.Description, expense.CategoryID, expenseID, userID)
 
 	if err != nil {
 		a.Logger.Println("Error updating expense:", err)
@@ -246,6 +297,15 @@ func (app *Application) GetFilteredExpenses(w http.ResponseWriter, r *http.Reque
 	to := queryParams.Get("to")
 	sortBy := queryParams.Get("sort_by")
 
+	userID, ok := r.Context().Value(userIDKey).(string)
+
+	if !ok || userID == "" {
+		app.Logger.Println("error on the authentication")
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+
+	}
+
 	query := `
      SELECT
    		e.expense_id,
@@ -262,6 +322,7 @@ func (app *Application) GetFilteredExpenses(w http.ResponseWriter, r *http.Reque
   		AND (NULLIF($2, '') IS NULL OR e.category_id = NULLIF($2, '')::uuid)
   		AND ($3 = '' OR e.created_at >= $3::date)
   		AND ($4 = '' OR e.created_at < $4::date + INTERVAL '1 day')
+		AND e.user_id = $6
 	ORDER BY
     	CASE WHEN $5 = 'highest' THEN e.amount END DESC,
     	CASE WHEN $5 = 'lowest' THEN e.amount END ASC,
@@ -270,7 +331,7 @@ func (app *Application) GetFilteredExpenses(w http.ResponseWriter, r *http.Reque
     	e.created_at DESC;
     `
 
-	rows, err := app.Db.Query(query, search, categoryID, from, to, sortBy)
+	rows, err := app.Db.Query(query, search, categoryID, from, to, sortBy, userID)
 	if err != nil {
 		app.Logger.Println("Failed to fetch filtered expenses:", err)
 		http.Error(w, "Failed to fetch expenses", http.StatusInternalServerError)
