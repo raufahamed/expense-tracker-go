@@ -2,7 +2,9 @@ import { BASE_URL } from "../constant";
 
 export async function getCategories() {
   try {
-    const response = await fetch(BASE_URL + "/get-categories");
+    const response = await fetch(BASE_URL + "/get-categories", {
+      credentials: "include",
+    });
 
     if (!response.ok) {
       throw new Error("failed to fetch the categories");
@@ -26,6 +28,7 @@ export async function createCategories(CategoryName: string) {
       body: JSON.stringify({
         category_name: CategoryName,
       }),
+      credentials: "include",
     });
     if (!response.ok) {
       throw new Error("failed to create the category");

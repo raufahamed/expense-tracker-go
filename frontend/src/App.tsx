@@ -1,5 +1,5 @@
 import "./App.css";
-import { Expense } from "./components/expense/Expense";
+import { AppRoutes } from "./components/routes/AppRoutes";
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
       </div>
 
       <div>
-        <Expense />
+        <AppRoutes />
       </div>
     </>
   );

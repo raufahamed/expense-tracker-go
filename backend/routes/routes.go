@@ -25,7 +25,8 @@ func SetUpRouter(app *app.Application) *chi.Mux {
 				"Authorization",
 				"Content-Type",
 			},
-			MaxAge: 300,
+			AllowCredentials: true,
+			MaxAge:           300,
 		},
 	))
 

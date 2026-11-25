@@ -3,7 +3,9 @@ import type { SortBy } from "../enums";
 
 export const getExpenses = async () => {
   try {
-    const response = await fetch(BASE_URL + "/get-expenses");
+    const response = await fetch(BASE_URL + "/get-expenses", {
+      credentials: "include",
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch expenses");
@@ -22,6 +24,7 @@ export const deleteExpenseById = async (id: string) => {
   try {
     const response = await fetch(BASE_URL + `/expenses/${id}`, {
       method: "DELETE",
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -53,6 +56,7 @@ export async function createExpenseApi(
         description: description,
         category_id: categoryId,
       }),
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -84,6 +88,7 @@ export async function editExpense(
         category_id: categoryId,
         expense_id: expenseId,
       }),
+      credentials: "include",
     });
     if (!response.ok) {
       throw new Error("cannot update the expense");
@@ -96,7 +101,9 @@ export async function editExpense(
 
 export async function sortExpenseBy(sortBy: SortBy) {
   try {
-    const response = await fetch(BASE_URL + `/get-expenses?sort_by=${sortBy}`);
+    const response = await fetch(BASE_URL + `/get-expenses?sort_by=${sortBy}`, {
+      credentials: "include",
+    });
 
     if (!response.ok) {
       throw new Error(`not able to sort the expense by ${sortBy}`);
